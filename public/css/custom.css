@@ -1,0 +1,16 @@
+.one-line{
+    font-size: 0.875rem;
+    font-weight: 600;
+    width: 200px;
+    color: #3B4144;
+    line-height: 21px;
+    height: 21px;
+    display: -webkit-box;
+    display: block;
+    margin: 10px;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
