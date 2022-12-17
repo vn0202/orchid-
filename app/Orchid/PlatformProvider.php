@@ -17,6 +17,8 @@ class PlatformProvider extends OrchidServiceProvider
      */
     public function boot(Dashboard $dashboard): void
     {
+
+
         parent::boot($dashboard);
 
         // ...

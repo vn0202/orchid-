@@ -41,7 +41,7 @@ class UserEditScreen extends Screen
 
         return [
             'user'       => $user,
-//            'permission' => $user->getStatusPermission(),
+            'permission' => $user->getStatusPermission(),
         ];
     }
 

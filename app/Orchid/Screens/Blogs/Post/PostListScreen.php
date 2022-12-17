@@ -8,9 +8,16 @@ use App\Orchid\Layouts\MySelection;
 use App\Orchid\Layouts\PostListLayout;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Laravel\Scout\SearchableScope;
+use Orchid\Access\UserSwitch;
 use Orchid\Filters\Filter;
+use Orchid\Platform\Http\Layouts\SearchLayout;
+use Orchid\Platform\Models\User;
+use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
+use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Screen;
+use Orchid\Support\Facades\Layout;
 use Orchid\Support\Facades\Toast;
 
 class PostListScreen extends Screen
@@ -20,12 +27,23 @@ class PostListScreen extends Screen
      *
      * @return array
      */
-    public function query(): iterable
+    public function __construct()
     {
 
 
+    }
+
+    public function query(Request $request): iterable
+    {
+         $search = $request->get('search');
+        $posts = Post::filters(MySelection::class)->defaultSort('id')->paginate(10);
+        if($search)
+        {
+            $posts = Post::where('title','like',"%$search%")->get();
+        }
+
         return [
-            'posts' => Post::filters(MySelection::class)->defaultSort('id')->paginate(10),
+            'posts' => $posts,
         ];
     }
 
@@ -49,7 +67,7 @@ class PostListScreen extends Screen
         return [
             Link::make('Create new')
                 ->icon('pencil')
-                ->route('platform.post.edit')
+                ->route('platform.post.edit'),
         ];
     }
 
@@ -61,16 +79,31 @@ class PostListScreen extends Screen
     public function layout(): iterable
     {
 
+
         return [
             MySelection::class,
-            PostListLayout::class,
+                PostListLayout::class,
         ];
 
     }
+
     public function remove(Request $request): void
     {
         Post::findOrFail($request->get('id'))->delete();
 
         Toast::info(__('Post was removed'));
+    }
+
+    public function loginAs(User $user)
+    {
+        UserSwitch::loginAs($user);
+
+        Toast::info(__('You are now impersonating this user'));
+
+        return redirect()->route(config('platform.index'));
+    }
+    public function search()
+    {
+
     }
 }

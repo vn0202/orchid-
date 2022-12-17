@@ -17,7 +17,8 @@ class PlatformScreen extends Screen
      */
     public function query(): iterable
     {
-        return [];
+        return [
+        ];
     }
 
     /**

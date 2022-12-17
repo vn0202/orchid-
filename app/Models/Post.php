@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Orchid\Presenters\PostPresenter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 use Orchid\Attachment\Attachable;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
@@ -56,5 +58,23 @@ class Post extends Model
         'category_id',
         'active',
     ];
+//searchable
+    public function presenter()
+    {
+        return new PostPresenter($this);
+    }
 
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        $array = $this->toArray();
+
+        // Customize array...
+
+        return $array;
+    }
 }

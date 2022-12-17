@@ -46,7 +46,6 @@ class PostEditScreen extends Screen
         $post->load('attachment');
         return [
             'post' => $post,
-            'name' => "Vu Van  Nghia",
         ];
     }
 
@@ -102,11 +101,10 @@ class PostEditScreen extends Screen
                 Layout::rows([
                 Relation::make('post.category_id')
                     ->fromModel(Category::class, 'title')
-                    ->title('Choose category'),
-                ModalToggle::make('add Category')
+                    ->title('Choose category')->required(),
+                ModalToggle::make('add category')
                     ->modal('addModal')
                     ->method('createCategory')
-                    ->icon('plus-alt')
                     ->class('bg-primary border-0 p-1 rounded-1'),
 
 
@@ -115,14 +113,14 @@ class PostEditScreen extends Screen
                     ->fromModel(Tag::class, 'name')
                     ->title('Choose tags')
                     ->placeholder('Choose tags'),
-                    ModalToggle::make('Add tags')
+                    ModalToggle::make('add tags')
                         ->modal('addTagModal')
                         ->method('createTag')
-                        ->icon('plus-alt')->modalTitle('Add tag')
+                        ->modalTitle('add tag')
                         ->class('bg-primary border-0 p-1 rounded-1'),
                 Quill::make('post.content')->title('Content')->required(),
                 Picture::make('post.thumb')->targetRelativeUrl()
-                    ->acceptedFiles('image/*')->required(),
+                    ->acceptedFiles('image/*')->required()->title('Thumb'),
                 CheckBox::make('post.active')
                     ->sendTrueOrFalse()
                     ->placeholder('Click to publish/unpublish post')
@@ -212,12 +210,17 @@ class PostEditScreen extends Screen
         }
     }
 
-    public function createCategory(Category $category, Request $request): void
+    public function createCategory( Request $request): void
     {
+        $category = new Category();
         $request->validate([
             'category.title' => [
                 Rule::unique('categories', 'title')->ignore($category->id),
             ],
+        ],
+        [
+            'category.title.required'=>"The field is can't be empty!",
+            'category.title.unique'=>"The values category  has been taken"
         ]);
 
         $category = $category->fill($request->get('category'));
@@ -227,16 +230,19 @@ class PostEditScreen extends Screen
         $category->save();
         \Orchid\Support\Facades\Toast::info('Add category successfully!.');
     }
-    public function createTag(Tag $tag, Request $request)
+    public function createTag( Request $request)
     {
 
-
+               $tag = new Tag();
         $request->validate([
             'tag.name'=>Rule::unique('tags','name')->ignore($tag->id),
-        ]);
+        ]
+        );
         $tag = $tag->fill($request->get('tag'));
         $tag->slug = Str::of($request->input('tag.name'))->slug('-');
         $tag->save();
         \Orchid\Support\Facades\Toast::info('Add tag successfully!');
+        return redirect()->back();
     }
+
 }
